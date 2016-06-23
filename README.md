@@ -4,6 +4,8 @@
 
 This is a [webpack](http://webpack.github.io/) plugin that update script references in HTML files by webpack bundle's hash.
 
+ It uses the [glob](https://github.com/isaacs/node-glob) library to do files matching.
+
 ## Installation
 
 Install the plugin with npm:
@@ -16,8 +18,8 @@ $ npm install replace-hash-webpack-plugin --save-dev
 You can pass a hash of configuration options to `ReplaceHashWebpackPlugin`.
 Allowed values are as follows:
 
-- `src`: Original file.
-- `dest`: New file with replaced data.
+- `src`: The original pattern the minimatch object represents.
+- `dest`: Dest files save path.
 
 ## Example
 
@@ -27,20 +29,21 @@ var ReplaceHashWebpackPlugin = require('replace-hash-webpack-plugin');
 var webpackConfig = {
   entry: 'main.js',
   output: {
-    filename: '[name].[hash].js',
+    filename: '[name]-[hash].js',
     publicPath: '/js/',
   },
   plugins: [
     new ReplaceHashWebpackPlugin({
-      src: 'index.html',
-      dest: 'build/index.html',
+      cwd: process.cwd() + '/static',
+      src: '**/*.html',
+      dest: process.cwd() + '/prd',
     })
   ]
 };
 ```
 
 ```html
-<!-- index.html -->
+<!-- static/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -56,7 +59,7 @@ var webpackConfig = {
 #### result:
 
 ```html
-<!-- build/index.html -->
+<!-- prd/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,7 +67,7 @@ var webpackConfig = {
   <title>replace-hash-webpack-plugin</title>
 </head>
 <body>
-  <script src="main.e8f4f5aa3f6ce31e1537.js"></script>
+  <script src="main-e8f4f5aa3f6ce31e1537.js"></script>
 </body>
 </html>
 ```
