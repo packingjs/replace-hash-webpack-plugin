@@ -9,6 +9,7 @@
 
 var path = require('path');
 var fs = require('fs');
+var url = require('url');
 var glob = require('glob');
 
 function ReplaceHashPlugin(options) {
@@ -34,6 +35,9 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               var oldFilename = item.replace(/-\w*\./, '.'); // main.js
               var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
               var newPath = path.join(publicPath, item);
+              if (self.options.assetsDomain) {
+                newPath = url.resolve(self.options.assetsDomain, newPath);
+              }
               data = data.replace(oldPath, newPath);
             }
           });

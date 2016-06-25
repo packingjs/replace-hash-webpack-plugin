@@ -18,6 +18,8 @@ $ npm install replace-hash-webpack-plugin --save-dev
 You can pass a hash of configuration options to `ReplaceHashWebpackPlugin`.
 Allowed values are as follows:
 
+- `assetsDomain`: The static domain.
+- `cwd`: The current work directory.
 - `src`: The original pattern the minimatch object represents.
 - `dest`: Dest files save path.
 
@@ -34,6 +36,7 @@ var webpackConfig = {
   },
   plugins: [
     new ReplaceHashWebpackPlugin({
+      assetsDomain: 'http://www.test.com/',
       cwd: process.cwd() + '/static',
       src: '**/*.html',
       dest: process.cwd() + '/prd',
@@ -67,7 +70,7 @@ var webpackConfig = {
   <title>replace-hash-webpack-plugin</title>
 </head>
 <body>
-  <script src="main-e8f4f5aa3f6ce31e1537.js"></script>
+  <script src="http://www.test.com/js/main-e8f4f5aa3f6ce31e1537.js"></script>
 </body>
 </html>
 ```
