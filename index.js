@@ -26,13 +26,32 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
       fs.readFile(fullpath, 'utf8', function (err, data) {
         compiler.plugin('done', function (stats) {
           var publicPath = compiler.options.output.publicPath;
-          var filename = compiler.options.output.filename;
+          // console.log('--', compiler.options.plugins[1].filename);
+          var jsChunkFileName = compiler.options.output.filename;
+          var cssChunkFileName;
+          // 找出ExtractTextPlugin插件在plugins中的位置
+          compiler.options.plugins.forEach(function(pluginConfig) {
+            if (pluginConfig.filename) {
+              cssChunkFileName = pluginConfig.filename;
+            }
+          });
           Object.keys(stats.compilation.assets).forEach(function(item) {
             var ext = path.extname(item); //.js
             var name = path.basename(item, ext); //main-e1bb26
             // 只处理html中的css、js
-            if (['.js', '.css'].indexOf(path.extname(item)) != -1) {
-              var oldFilename = item.replace(/-\w*\./, '.'); // main.js
+            if (['.js', '.css'].indexOf(ext) != -1) {
+              var filename;
+              if (ext === '.js') {
+                filename = jsChunkFileName;
+              }
+              if (ext === '.css') {
+                filename = cssChunkFileName;
+              }
+              var regString = filename
+                .replace('[name]','(\\S+)')
+                .replace('[chunkhash:6]','\\w{6}');
+              var matches = item.match(new RegExp(regString));
+              var oldFilename = matches[1] + ext;
               var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
               var newPath = path.join(publicPath, item);
               if (self.options.assetsDomain) {
