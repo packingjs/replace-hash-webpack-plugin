@@ -1,6 +1,6 @@
 {
   "name": "replace-hash-webpack-plugin",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Use webpack hash of bundles to update the script src in HTMl files",
   "main": "index.js",
   "scripts": {

@@ -25,6 +25,11 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
       var fullpath = path.join(self.options.cwd, file);
       fs.readFile(fullpath, 'utf8', function (err, data) {
         compiler.plugin('done', function (stats) {
+          require("fs").writeFileSync(
+            path.join(process.cwd(), "stats.json"),
+            JSON.stringify(stats.toJson())
+          );
+
           var publicPath = compiler.options.output.publicPath;
           // console.log('--', compiler.options.plugins[1].filename);
           var jsChunkFileName = compiler.options.output.filename;
@@ -47,9 +52,15 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               if (ext === '.css') {
                 filename = cssChunkFileName;
               }
+              var hashLengthMatches = filename.match(/\[\S*hash:(\d)\]/i);
+              var hashLength;
+              if (hashLengthMatches[1]) {
+                hashLength = hashLengthMatches[1];
+              }
               var regString = filename
                 .replace('[name]','(\\S+)')
-                .replace('[chunkhash:6]','\\w{6}');
+                .replace(`[chunkhash:${hashLength}]`, `\\w{${hashLength}}`)
+                .replace(`[hash:${hashLength}]`, `\\w{${hashLength}}`);
               var matches = item.match(new RegExp(regString));
               var oldFilename = matches[1] + ext;
               var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
