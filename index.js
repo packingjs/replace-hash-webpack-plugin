@@ -11,6 +11,7 @@ var path = require('path');
 var fs = require('fs');
 var url = require('url');
 var glob = require('glob');
+var mkdirp = require('mkdirp');
 
 function ReplaceHashPlugin(options) {
   this.options = options || {};
@@ -25,13 +26,12 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
       var fullpath = path.join(self.options.cwd, file);
       fs.readFile(fullpath, 'utf8', function (err, data) {
         compiler.plugin('done', function (stats) {
-          require("fs").writeFileSync(
-            path.join(process.cwd(), "stats.json"),
-            JSON.stringify(stats.toJson())
-          );
+          // require("fs").writeFileSync(
+          //   path.join(process.cwd(), "stats.json"),
+          //   JSON.stringify(stats.toJson())
+          // );
 
           var publicPath = compiler.options.output.publicPath;
-          // console.log('--', compiler.options.plugins[1].filename);
           var jsChunkFileName = compiler.options.output.filename;
           var cssChunkFileName;
           // 找出ExtractTextPlugin插件在plugins中的位置
@@ -43,6 +43,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
           Object.keys(stats.compilation.assets).forEach(function(item) {
             var ext = path.extname(item); //.js
             var name = path.basename(item, ext); //main-e1bb26
+            // console.log(item);
             // 只处理html中的css、js
             if (['.js', '.css'].indexOf(ext) != -1) {
               var filename;
@@ -68,15 +69,29 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               if (self.options.assetsDomain) {
                 newPath = url.resolve(self.options.assetsDomain, newPath);
               }
-              data = data.replace(oldPath, newPath);
+              var regexp = new RegExp(`(["'=])([/]?${oldPath})`, 'g');
+              var replacement = `$1${newPath}`;
+              data = data.replace(regexp, replacement);
             }
           });
 
+          // 将rev处理的文件也替换一遍
+          if (compiler.revSourceMap) {
+            Object.keys(compiler.revSourceMap).forEach(function(item) {
+              var newPath = compiler.revSourceMap[item];
+              if (self.options.assetsDomain) {
+                newPath = url.resolve(self.options.assetsDomain, newPath);
+              }
+              var regexp = new RegExp(`(["'=])([/]?${item})`, 'g');
+              var replacement = `$1${newPath}`;
+              data = data.replace(regexp, replacement);
+            });
+          }
+
           var dest = path.join(self.options.dest, file);
           var destDir = path.dirname(dest);
-          // console.log(dest, destDir, fs.existsSync(destDir));
           if (!fs.existsSync(destDir)) {
-            fs.mkdirSync(destDir);
+            mkdirp.sync(destDir);
           }
           fs.writeFileSync(dest, data);
           console.log(`${dest} created.`);
