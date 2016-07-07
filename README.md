@@ -18,10 +18,11 @@ $ npm install replace-hash-webpack-plugin --save-dev
 You can pass a hash of configuration options to `ReplaceHashWebpackPlugin`.
 Allowed values are as follows:
 
-- `assetsDomain`: The static domain.
 - `cwd`: The current work directory.
 - `src`: The original pattern the minimatch object represents.
 - `dest`: Dest files save path.
+- `assetsDomain`: (optional) The static domain.
+- `pattern`: {Array} (optional) find and replace rules.
 
 ## Example
 
@@ -31,16 +32,29 @@ var ReplaceHashWebpackPlugin = require('replace-hash-webpack-plugin');
 var webpackConfig = {
   entry: 'main.js',
   output: {
-    filename: '[name]-[hash].js',
+    filename: '[name]-[hash:8].js',
     publicPath: '/js/',
   },
   plugins: [
-    new ReplaceHashWebpackPlugin({
-      assetsDomain: 'http://www.test.com/',
-      cwd: process.cwd() + '/static',
-      src: '**/*.html',
-      dest: process.cwd() + '/prd',
-    })
+    new ReplaceHashWebpackPlugin([
+      {
+        cwd: 'static',
+        src: '**/*.jade',
+        dest: 'prd',
+      },
+      {
+        assetsDomain: 'http://www.test.com/',
+        cwd: process.cwd() + '/static',
+        src: '**/*.html',
+        dest: process.cwd() + '/prd',
+        pattern: [
+          {
+            find: '([\'"])([/]?%s)(["\'])',
+            replace: '$1%s$3'
+          }
+        ]
+      }
+    ])
   ]
 };
 ```
@@ -70,7 +84,7 @@ var webpackConfig = {
   <title>replace-hash-webpack-plugin</title>
 </head>
 <body>
-  <script src="http://www.test.com/js/main-e8f4f5aa3f6ce31e1537.js"></script>
+  <script src="http://www.test.com/js/main-e8f4f5aa.js"></script>
 </body>
 </html>
 ```

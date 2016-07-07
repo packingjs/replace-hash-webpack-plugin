@@ -1,6 +1,4 @@
 /**
- * @todo 根据webpack.config.output.filename规则替换
- *       目前只支持这种格式[name]-[chunkhash].js
  *
  * 更多文件匹配规则
  * @see https://github.com/isaacs/node-glob
@@ -9,9 +7,18 @@
 
 var path = require('path');
 var fs = require('fs');
+var util = require('util');
 var url = require('url');
 var glob = require('glob');
 var mkdirp = require('mkdirp');
+
+var defaultPatternList = [
+  {
+    find: '([\'"])([/]?%s)(["\'])',
+    replace: '$1%s$3'
+  }
+];
+
 
 function ReplaceHashPlugin(options) {
   this.options = options || {};
@@ -44,7 +51,6 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
           Object.keys(stats.compilation.assets).forEach(function(item) {
             var ext = path.extname(item); //.js
             var name = path.basename(item, ext); //main-e1bb26
-            // console.log(item);
             // 只处理html中的css、js
             if (['.js', '.css'].indexOf(ext) != -1) {
               var filename;
@@ -70,9 +76,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               if (self.options.assetsDomain) {
                 newPath = url.resolve(self.options.assetsDomain, newPath);
               }
-              var regexp = new RegExp(`(["'=])([/]?${oldPath})`, 'g');
-              var replacement = `$1${newPath}`;
-              data = data.replace(regexp, replacement);
+              data = self.doReplace(oldPath, newPath, data);
             }
           });
 
@@ -83,9 +87,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               if (self.options.assetsDomain) {
                 newPath = url.resolve(self.options.assetsDomain, newPath);
               }
-              var regexp = new RegExp(`(["'=])([/]?${item})`, 'g');
-              var replacement = `$1${newPath}`;
-              data = data.replace(regexp, replacement);
+              data = self.doReplace(item, newPath, data);
             });
           }
 
@@ -102,5 +104,16 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
     });
   });
 };
+
+ReplaceHashPlugin.prototype.doReplace = function (oldPath, newPath, data) {
+  (this.options.pattern || defaultPatternList).forEach(function(pattern) {
+    var search = util.format(pattern.find, oldPath);
+    var replacement = util.format(pattern.replace, newPath);
+    var regexp = new RegExp(search, 'gm');
+    // var regexp = new RegExp(`(["'=])([/]?${oldPath})`, 'g');
+    data = data.replace(regexp, replacement);
+  });
+  return data;
+}
 
 module.exports = ReplaceHashPlugin;
