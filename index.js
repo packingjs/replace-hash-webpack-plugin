@@ -19,7 +19,8 @@ function ReplaceHashPlugin(options) {
 
 ReplaceHashPlugin.prototype.apply = function (compiler) {
   var self = this;
-  self.options.cwd = self.options.cwd || compiler.options.context;
+  self.options.cwd = self.options.cwd ? (path.isAbsolute(self.options.cwd) ? self.options.cwd : path.resolve(compiler.options.context, self.options.cwd)) : compiler.options.context;
+  self.options.dest = path.isAbsolute(self.options.dest) ? self.options.dest : path.resolve(process.cwd(), self.options.dest);
 
   glob(self.options.src, self.options, function (err, files) {
     files.forEach(function(file) {
@@ -88,7 +89,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
             });
           }
 
-          var dest = path.join(self.options.dest, file);
+          var dest = path.resolve(self.options.dest, file);
           var destDir = path.dirname(dest);
           if (!fs.existsSync(destDir)) {
             mkdirp.sync(destDir);
