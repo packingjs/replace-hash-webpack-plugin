@@ -66,9 +66,9 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
                 hashLength = hashLengthMatches[1];
               }
               var regString = filename
-                .replace('[name]','(\\S+)')
-                .replace(`[chunkhash:${hashLength}]`, `\\w{${hashLength}}`)
-                .replace(`[hash:${hashLength}]`, `\\w{${hashLength}}`);
+                .replace('\[name\]','(\\S+)')
+                .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
+                .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
               var matches = item.match(new RegExp(regString));
               var oldFilename = matches[1] + ext;
               var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
@@ -97,7 +97,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
             mkdirp.sync(destDir);
           }
           fs.writeFileSync(dest, data);
-          console.log(`${dest} created.`);
+          console.log(dest + ' created.');
 
         });
       });
