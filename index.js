@@ -20,7 +20,6 @@ var defaultPatternList = [
   }
 ];
 
-
 function ReplaceHashPlugin(options) {
   this.options = options || {};
 }
@@ -35,11 +34,6 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
       var fullpath = path.join(self.options.cwd, file);
       fs.readFile(fullpath, 'utf8', function (err, data) {
         compiler.plugin('done', function (stats) {
-          // require("fs").writeFileSync(
-          //   path.join(process.cwd(), "stats.json"),
-          //   JSON.stringify(stats.toJson())
-          // );
-
           var publicPath = compiler.options.output.publicPath;
           var jsChunkFileName = compiler.options.output.filename;
           var cssChunkFileName;
@@ -74,12 +68,11 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               var oldFilename = matches[1] + ext;
               var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
               var newPath = path.join(publicPath, item);
-              if (self.options.assetsDomain) {
+              if (self.options.hasOwnProperty('assetsDomain')) {
                 if (!endsWith(self.options.assetsDomain, '/')) {
                   self.options.assetsDomain += '/';
                 }
                 newPath = self.options.assetsDomain + newPath;
-                // console.log('====newPath: %s', newPath);
               }
               data = self.doReplace(oldPath, newPath, data);
             }
@@ -115,7 +108,6 @@ ReplaceHashPlugin.prototype.doReplace = function (oldPath, newPath, data) {
     var search = util.format(pattern.find, oldPath);
     var replacement = util.format(pattern.replace, newPath);
     var regexp = new RegExp(search, 'gm');
-    // var regexp = new RegExp(`(["'=])([/]?${oldPath})`, 'g');
     data = data.replace(regexp, replacement);
   });
   return data;
