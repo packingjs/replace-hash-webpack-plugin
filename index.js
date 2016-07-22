@@ -11,7 +11,7 @@ var util = require('util');
 var url = require('url');
 var glob = require('glob');
 var mkdirp = require('mkdirp');
-var assign = require('object-assign');
+var endsWith = require('lodash.endswith');
 
 var defaultPatternList = [
   {
@@ -30,18 +30,16 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
   self.options.cwd = self.options.cwd ? (path.isAbsolute(self.options.cwd) ? self.options.cwd : path.resolve(compiler.options.context, self.options.cwd)) : compiler.options.context;
   self.options.dest = path.isAbsolute(self.options.dest) ? self.options.dest : path.resolve(process.cwd(), self.options.dest);
 
-  var globOptions = {
-    cwd: self.options.cwd
-  };
-  if (self.options.glob) {
-    globOptions = assign(globOptions, self.options.glob);
-  }
-
-  glob(self.options.src, globOptions, function (err, files) {
+  glob(self.options.src, self.options, function (err, files) {
     files.forEach(function(file) {
       var fullpath = path.join(self.options.cwd, file);
       fs.readFile(fullpath, 'utf8', function (err, data) {
         compiler.plugin('done', function (stats) {
+          // require("fs").writeFileSync(
+          //   path.join(process.cwd(), "stats.json"),
+          //   JSON.stringify(stats.toJson())
+          // );
+
           var publicPath = compiler.options.output.publicPath;
           var jsChunkFileName = compiler.options.output.filename;
           var cssChunkFileName;
@@ -77,7 +75,11 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
               var newPath = path.join(publicPath, item);
               if (self.options.assetsDomain) {
-                newPath = url.resolve(self.options.assetsDomain, newPath);
+                if (!endsWith(self.options.assetsDomain, '/')) {
+                  self.options.assetsDomain += '/';
+                }
+                newPath = self.options.assetsDomain + newPath;
+                // console.log('====newPath: %s', newPath);
               }
               data = self.doReplace(oldPath, newPath, data);
             }
