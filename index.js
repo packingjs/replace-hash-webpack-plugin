@@ -63,6 +63,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               var regString = filename
                 .replace('\[name\]','(\\S+)')
                 .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
+                .replace('\[contenthash:' + hashLength + '\]', '\\w{' + hashLength + '}')
                 .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
               var matches = item.match(new RegExp(regString));
               var oldFilename = matches[1] + ext;
