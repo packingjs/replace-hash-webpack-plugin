@@ -1,6 +1,6 @@
 # Replace Hash Webpack plugin
 
-[![npm version](https://badge.fury.io/js/replace-hash-webpack-plugin.svg)](http://badge.fury.io/js/replace-hash-webpack-plugin)
+[![NPM](https://nodei.co/npm/replace-hash-webpack-plugin.png)](https://nodei.co/npm/replace-hash-webpack-plugin/)
 
 This is a [webpack](http://webpack.github.io/) plugin that update script references in HTML files by webpack bundle's hash.
 
