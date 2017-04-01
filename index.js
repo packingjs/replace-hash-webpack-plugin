@@ -43,45 +43,33 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
           cssChunkFileName = pluginConfig.filename;
         }
       });
-      Object.keys(stats.compilation.assets).forEach(function(item) {
+      Object.keys(stats.compilation.assets).filter(function(item) {
+        return endsWith(item, '.js') || endsWith(item, '.css')
+      }).forEach(function(item) {
         var ext = path.extname(item); //.js
         var name = path.basename(item, ext); //main-e1bb26
-        // 只处理html中的css、js
-        if (['.js', '.css'].indexOf(ext) != -1) {
-          var filename;
-          if (ext === '.js') {
-            filename = jsChunkFileName;
-          }
-          if (ext === '.css') {
-            filename = cssChunkFileName;
-          }
-          var hashLengthMatches = filename.match(/\[\S*hash:(\d)\]/i);
-          var hashLength;
-          if (hashLengthMatches[1]) {
-            hashLength = hashLengthMatches[1];
-          }
-          var regString = filename
-            .replace('\[name\]','(\\S+)')
-            .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
-            .replace('\[contenthash:' + hashLength + '\]', '\\w{' + hashLength + '}')
-            .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
-          var matches = item.match(new RegExp(regString));
-          if (matches) {
-            var oldFilename = matches[1] + ext;
-            var oldPath = path.join(publicPath, oldFilename); // /assets/main.js
-            var newPath = path.join(publicPath, item);
-            if (self.options.hasOwnProperty('assetsDomain')) {
-              if (!endsWith(self.options.assetsDomain, '/')) {
-                self.options.assetsDomain += '/';
-              }
-              newPath = self.options.assetsDomain + newPath;
-            }
-            data = self.doReplace(oldPath, newPath, data);
-          } else {
-            console.log('[warnings]%s replace hash failed.', item);
-          }
 
+        var filename = ext === '.js' ? jsChunkFileName : cssChunkFileName;
+        var hashLengthMatches = filename.match(/\[\S*hash:(\d)\]/i);
+        var hashLength;
+        if (hashLengthMatches[1]) {
+          hashLength = hashLengthMatches[1];
         }
+        var regString = filename
+          .replace('\[name\]','(\\S+)')
+          .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
+          .replace('\[contenthash:' + hashLength + '\]', '\\w{' + hashLength + '}')
+          .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
+        var matches = item.match(new RegExp(regString));
+        if (matches) {
+          var oldFilename = matches[1] + ext;
+          var oldPath = oldFilename;
+          var newPath = publicPath + item;
+          data = self.doReplace(oldPath, newPath, data);
+        } else {
+          console.log('[warnings]%s replace hash failed.', item);
+        }
+
       });
 
       // 将rev处理的文件也替换一遍
