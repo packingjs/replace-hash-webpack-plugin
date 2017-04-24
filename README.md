@@ -21,7 +21,8 @@ Allowed values are as follows:
 - `cwd`: The current work directory.
 - `src`: The original pattern the minimatch object represents.
 - `dest`: Dest files save path.
-- `pattern`: {Array} (optional) find and replace rules.
+- `pattern`: {Array} (optional) Find and replace rules.
+- `exts`: {Array} (optional) Asset types to be replaced. Default: ['js', 'css']
 
 ## Example
 
@@ -35,24 +36,23 @@ var webpackConfig = {
     publicPath: 'http://www.cdn.com/js/',
   },
   plugins: [
-    new ReplaceHashWebpackPlugin([
-      {
-        cwd: 'static',
-        src: '**/*.jade',
-        dest: 'prd',
-      },
-      {
-        cwd: process.cwd() + '/static',
-        src: '**/*.html',
-        dest: process.cwd() + '/prd',
-        pattern: [
-          {
-            find: '([\'"])([/]?%s)(["\'])',
-            replace: '$1%s$3'
-          }
-        ]
-      }
-    ])
+    new ReplaceHashWebpackPlugin({
+      cwd: 'static',
+      src: '**/*.jade',
+      dest: 'prd',
+    }),
+    // new ReplaceHashWebpackPlugin({
+    //   cwd: process.cwd() + '/static',
+    //   src: '**/*.html',
+    //   dest: process.cwd() + '/prd',
+    //   exts: ['png', 'jpg', 'jpeg'],
+    //   pattern: [
+    //     {
+    //       find: '([\'"])([/]?%s)(["\'])',
+    //       replace: '$1%s$3'
+    //     }
+    //   ]
+    // }),
   ]
 };
 ```

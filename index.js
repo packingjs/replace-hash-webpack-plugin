@@ -22,6 +22,9 @@ var defaultPatternList = [
 
 function ReplaceHashPlugin(options) {
   this.options = options || {};
+  if (!this.options.exts) {
+    this.options.exts = ['js', 'css', 'png', 'jpg'];
+  }
 }
 
 ReplaceHashPlugin.prototype.apply = function (compiler) {
@@ -29,34 +32,68 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
   self.options.cwd = self.options.cwd ? (path.isAbsolute(self.options.cwd) ? self.options.cwd : path.resolve(compiler.options.context, self.options.cwd)) : compiler.options.context;
   self.options.dest = path.isAbsolute(self.options.dest) ? self.options.dest : path.resolve(process.cwd(), self.options.dest);
 
-  var patterns = self.options.src;
-  packingGlob(patterns, self.options).forEach(function(file) {
-    var fullpath = path.join(self.options.cwd, file);
-    var data = fs.readFileSync(fullpath, 'utf8');
-    compiler.plugin('done', function (stats) {
-      var publicPath = compiler.options.output.publicPath;
-      var jsChunkFileName = compiler.options.output.filename;
-      var cssChunkFileName;
-      // 找出ExtractTextPlugin插件在plugins中的位置
-      compiler.options.plugins.forEach(function(pluginConfig) {
-        if (pluginConfig.filename) {
-          cssChunkFileName = pluginConfig.filename;
-        }
-      });
+  compiler.plugin('done', function (stats) {
+    var publicPath = compiler.options.output.publicPath;
+    var jsChunkFileName = compiler.options.output.filename;
+    var cssChunkFileName;
+    // 找出ExtractTextPlugin插件在plugins中的位置
+    compiler.options.plugins.forEach(function(pluginConfig) {
+      if (pluginConfig.filename) {
+        cssChunkFileName = pluginConfig.filename;
+      }
+    });
+
+    var patterns = self.options.src;
+    packingGlob(patterns, self.options).forEach(function(file) {
+      var fullpath = path.join(self.options.cwd, file);
+      var data = fs.readFileSync(fullpath, 'utf8');
+
       Object.keys(stats.compilation.assets).filter(function(item) {
-        return endsWith(item, '.js') || endsWith(item, '.css')
+        return self.options.exts.some(function(e) {
+          return endsWith(item, e);
+        });
       }).forEach(function(item) {
         var ext = path.extname(item); //.js
         var name = path.basename(item, ext); //main-e1bb26
+        var filename;
 
-        var filename = ext === '.js' ? jsChunkFileName : cssChunkFileName;
+        switch (ext) {
+          case '.js':
+            filename = jsChunkFileName;
+            break;
+          case '.css':
+            filename = cssChunkFileName;
+            break;
+          default:
+            compiler.options.module.rules.forEach(function(rule) {
+              if (rule.test.test(ext)) {
+                var query = rule.query;
+                if (rule.use) {
+                  rule.use.forEach(function(use) {
+                    if (use.loader === 'url' ||
+                      use.loader === 'url-loader' ||
+                      use.loader === 'file' ||
+                      use.loader === 'file-loader') {
+                      query = use.query;
+                    }
+                  })
+                }
+                if (query) {
+                  filename = query.name;
+                } else {
+                  filename = '[hash].[ext]';
+                }
+              }
+            })
+        }
         var hashLengthMatches = filename.match(/\[\S*hash:(\d)\]/i);
         var hashLength;
         if (hashLengthMatches[1]) {
           hashLength = hashLengthMatches[1];
         }
         var regString = filename
-          .replace('\[name\]','(\\S+)')
+          .replace('\[name\]', '(\\S+)')
+          .replace('\[ext\]', ext.substr(1, ext.length))
           .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
           .replace('\[contenthash:' + hashLength + '\]', '\\w{' + hashLength + '}')
           .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
@@ -92,7 +129,10 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
       console.log('%s created.', dest);
 
     });
+
+
   });
+
 };
 
 ReplaceHashPlugin.prototype.doReplace = function (oldPath, newPath, data) {
