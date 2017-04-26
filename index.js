@@ -67,14 +67,14 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
           default:
             compiler.options.module.rules.forEach(function(rule) {
               if (rule.test.test(ext)) {
-                var query = rule.query;
+                var query = rule.query || rule.options;
                 if (rule.use) {
                   rule.use.forEach(function(use) {
                     if (use.loader === 'url' ||
                       use.loader === 'url-loader' ||
                       use.loader === 'file' ||
                       use.loader === 'file-loader') {
-                      query = use.query;
+                      query = use.query || use.options;
                     }
                   })
                 }
