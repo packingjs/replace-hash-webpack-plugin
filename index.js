@@ -88,25 +88,28 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
         }
         var hashLengthMatches = filename.match(/\[\S*hash:(\d)\]/i);
         var hashLength;
-        if (hashLengthMatches[1]) {
-          hashLength = hashLengthMatches[1];
-        }
-        var regString = filename
-          .replace('\[name\]', '(\\S+)')
-          .replace('\[ext\]', ext.substr(1, ext.length))
-          .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
-          .replace('\[contenthash:' + hashLength + '\]', '\\w{' + hashLength + '}')
-          .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
-        var matches = item.match(new RegExp(regString));
-        if (matches) {
-          var oldFilename = matches[1] + ext;
-          var oldPath = oldFilename;
-          var newPath = publicPath + item;
-          data = self.doReplace(oldPath, newPath, data);
+        if (hashLengthMatches) {
+          if (hashLengthMatches[1]) {
+            hashLength = hashLengthMatches[1];
+          }
+          var regString = filename
+            .replace('\[name\]', '(\\S+)')
+            .replace('\[ext\]', ext.substr(1, ext.length))
+            .replace('\[chunkhash:' + hashLength + '\]', '\\w{' + hashLength + '}')
+            .replace('\[contenthash:' + hashLength + '\]', '\\w{' + hashLength + '}')
+            .replace('\[hash:' + hashLength + '\]', '\\w{' + hashLength + '}');
+          var matches = item.match(new RegExp(regString));
+          if (matches) {
+            var oldFilename = matches[1] + ext;
+            var oldPath = oldFilename;
+            var newPath = publicPath + item;
+            data = self.doReplace(oldPath, newPath, data);
+          } else {
+            console.log('[warnings]%s replace hash failed.', item);
+          }
         } else {
-          console.log('[warnings]%s replace hash failed.', item);
+          console.log('[warnings]matching filename failed. filename: %s', filename);
         }
-
       });
 
       // 将rev处理的文件也替换一遍
