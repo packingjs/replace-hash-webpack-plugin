@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhongzhi107/replace-hash-webpack-plugin.git"
+    "url": "git+https://github.com/packingjs/replace-hash-webpack-plugin.git"
   },
   "keywords": [
     "webpack",
@@ -20,9 +20,9 @@
   "author": "zhongzhi <zhong.zhi@163.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/zhongzhi107/replace-hash-webpack-plugin/issues"
+    "url": "https://github.com/packingjs/replace-hash-webpack-plugin/issues"
   },
-  "homepage": "https://github.com/zhongzhi107/replace-hash-webpack-plugin#readme",
+  "homepage": "https://github.com/packingjs/replace-hash-webpack-plugin#readme",
   "dependencies": {
     "packing-glob": "^1.0.1",
     "lodash.endswith": "^4.1.0",
