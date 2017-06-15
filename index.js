@@ -86,7 +86,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
               }
             })
         }
-        var hashLengthMatches = filename.match(/\[\S*hash:(\d)\]/i);
+        var hashLengthMatches = filename.match(/\[\S*hash:(\d+)\]/i);
         var hashLength;
         if (hashLengthMatches) {
           if (hashLengthMatches[1]) {

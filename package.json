@@ -4,7 +4,7 @@
   "description": "Use webpack hash of bundles to update the script src in HTMl files",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "standard-version && npm publish"
   },
   "repository": {
     "type": "git",
