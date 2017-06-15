@@ -4,6 +4,7 @@
   "description": "Use webpack hash of bundles to update the script src in HTMl files",
   "main": "index.js",
   "scripts": {
+    "postrelease": "git push && git push origin --tags",
     "release": "standard-version && npm publish"
   },
   "repository": {
