@@ -66,7 +66,7 @@ ReplaceHashPlugin.prototype.apply = function (compiler) {
             break;
           default:
             compiler.options.module.rules.forEach(function(rule) {
-              if (rule.test.test(ext)) {
+              if (rule.test.toString().indexOf(ext) > -1) {
                 var query = rule.query || rule.options;
                 if (rule.use) {
                   rule.use.forEach(function(use) {
