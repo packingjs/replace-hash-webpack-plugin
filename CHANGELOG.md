@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.4.1"></a>
+## [2.4.1](https://github.com/packingjs/replace-hash-webpack-plugin/compare/v2.4.0...v2.4.1) (2018-01-26)
+
+
+### Bug Fixes
+
+* Failed to replaces hash when loader is a actual file name. ([a680db2](https://github.com/packingjs/replace-hash-webpack-plugin/commit/a680db2))
+
+
+
 <a name="2.4.0"></a>
 # 2.4.0 (2017-06-15)
 
