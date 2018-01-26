@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.4.2"></a>
+## [2.4.2](https://github.com/packingjs/replace-hash-webpack-plugin/compare/v2.4.1...v2.4.2) (2018-01-26)
+
+
+### Bug Fixes
+
+* 当loader的options.name包含[path]时，替换正则有问题 [#2](https://github.com/packingjs/replace-hash-webpack-plugin/issues/2) ([ce2ddd6](https://github.com/packingjs/replace-hash-webpack-plugin/commit/ce2ddd6))
+
+
+
 <a name="2.4.1"></a>
 ## [2.4.1](https://github.com/packingjs/replace-hash-webpack-plugin/compare/v2.4.0...v2.4.1) (2018-01-26)
 
